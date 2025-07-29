@@ -2,14 +2,14 @@ pipeline {
   agent any
 
   environment {
-    REPO_URL = 'https://github.com/<ton-compte>/todo-app.git'
-    IMAGE_NAME = 'ghcr.io/<ton-compte>/todo-app'
+    REPO_URL = 'https://github.com/triafus/pipeline.git'
+    IMAGE_NAME = 'ghcr.io/triafus/todo-app'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git url: "${REPO_URL}", branch: 'main'
+        git url: "${REPO_URL}", branch: 'main', credentialsId: 'github-https-creds'
       }
     }
 

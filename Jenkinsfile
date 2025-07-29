@@ -38,7 +38,7 @@ pipeline {
                                       passwordVariable: 'TOKEN')]) {
         sh 'git config user.email "jenkins@example.com"'
         sh 'git config user.name "Jenkins CI"'
-        sh 'git remote set-url origin https://$USERNAME:$TOKEN@github.com/triafus/pipeline.git'
+        sh 'git remote set-url origin https://git:$TOKEN@github.com/triafus/pipeline.git'
         sh 'git tag v${BUILD_NUMBER}'
         sh 'git push origin v${BUILD_NUMBER}'
       }

@@ -48,7 +48,7 @@ stage('Tag Repo') {
 
     stage('Push Docker Image') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'hub-container-registry',
+        withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
                                           usernameVariable: 'USERNAME',
                                           passwordVariable: 'TOKEN')]) {
           sh 'echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin'

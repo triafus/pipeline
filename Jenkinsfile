@@ -33,7 +33,7 @@ pipeline {
 
     stage('Tag Repo') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'github-https-creds',
+        withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
                                       usernameVariable: 'USERNAME',
                                       passwordVariable: 'TOKEN')]) {
         sh 'git config user.email "jenkins@example.com"'
@@ -47,7 +47,7 @@ pipeline {
 
     stage('Push Docker Image') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'github-container-registry',
+        withCredentials([usernamePassword(credentialsId: 'hub-container-registry',
                                           usernameVariable: 'USERNAME',
                                           passwordVariable: 'TOKEN')]) {
           sh 'echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin'

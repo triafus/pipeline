@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: "${REPO_URL}", branch: 'main', credentialsId: 'github-https-creds'
+        git url: "${REPO_URL}", branch: 'main', credentialsId: 'hub-https-creds'
       }
     }
 

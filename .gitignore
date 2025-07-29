@@ -1,0 +1,40 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dossiers de dépendances
+node_modules/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Fichiers de logs et temporaires
+*.log
+*.tmp
+
+# Dossiers de build
+dist/
+build/
+out/
+
+# Fichiers de configuration locaux
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+
+# Dossiers Python
+.mypy_cache/
+.pytest_cache/
+
+# Dossiers JetBrains
+.idea/
+
+# Dossiers

@@ -43,6 +43,7 @@ pipeline {
         sh 'git push origin v${BUILD_NUMBER}'
       }
     }
+  }
 
     stage('Push Docker Image') {
       steps {

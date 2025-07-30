@@ -8,10 +8,10 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      steps {
-        bat 'git clone %REPO_URL% --branch main --single-branch .'
-      }
-    }
+  steps {
+    git url: "${REPO_URL}", branch: 'main', credentialsId: 'hub-https-creds'
+  }
+}
 
     stage('Install & Build') {
       steps {

@@ -15,21 +15,13 @@ pipeline {
 
     stage('Install & Build') {
       steps {
-        script {
-          docker.image('node:20').inside {
-            sh 'npm install'
-          }
-        }
+        sh 'npm install'
       }
     }
 
     stage('Tests') {
       steps {
-        script {
-          docker.image('node:20').inside {
-            sh 'npm test'
-          }
-        }
+        sh 'npm test'
       }
     }
 
@@ -39,19 +31,20 @@ pipeline {
       }
     }
 
-    stage('Tag Repo') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
-                                          usernameVariable: 'USERNAME',
-                                          passwordVariable: 'TOKEN')]) {
-          sh 'git config user.email "jenkins@example.com"'
-          sh 'git config user.name "Jenkins CI"'
-          sh 'git remote set-url origin https://$USERNAME:$TOKEN@github.com/triafus/pipeline.git'
-          sh 'git tag v${BUILD_NUMBER}'
-          sh 'git push origin v${BUILD_NUMBER}'
-        }
-      }
+stage('Tag Repo') {
+  steps {
+    withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
+                                      usernameVariable: 'USERNAME',
+                                      passwordVariable: 'TOKEN')]) {
+      sh 'git config user.email "jenkins@example.com"'
+      sh 'git config user.name "Jenkins CI"'
+      sh 'git remote set-url origin https://git:$TOKEN@github.com/triafus/pipeline.git'
+      sh 'git tag v${BUILD_NUMBER}'
+      sh 'git push origin v${BUILD_NUMBER}'
     }
+  }
+}
+
 
     stage('Push Docker Image') {
       steps {

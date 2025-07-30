@@ -2,40 +2,70 @@ pipeline {
   agent any
 
   environment {
-    REGISTRY = 'ghcr.io/ton-compte/todo-app'
-    GITHUB_TOKEN = credentials('github-pat')
+    REPO_URL = 'https://github.com/triafus/pipeline.git'
+    IMAGE_NAME = 'ghcr.io/triafus/todo-app'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/ton-compte/ton-projet-todo.git'
+        git url: "${REPO_URL}", branch: 'main', credentialsId: 'hub-https-creds'
       }
     }
-    stage('Install & Test') {
+
+    stage('Install & Build') {
       steps {
-        sh 'npm install'
-        sh 'npm test'
-      }
-    }
-    stage('Docker Build') {
-      steps {
-        sh 'docker build -t $REGISTRY:${env.BUILD_NUMBER} .'
-      }
-    }
-    stage('Docker Push') {
-      steps {
-        withCredentials([string(credentialsId: 'github-pat', variable: 'TOKEN')]) {
-          sh "echo $TOKEN | docker login ghcr.io -u ton-compte --password-stdin"
-          sh "docker push $REGISTRY:${env.BUILD_NUMBER}"
+        script {
+          docker.image('node:20').inside {
+            sh 'npm install'
+          }
         }
       }
     }
-    stage('Tag Repo') {
+
+    stage('Tests') {
       steps {
-        sh "git tag -a v${env.BUILD_NUMBER} -m 'Build ${env.BUILD_NUMBER}'"
-        sh "git push origin v${env.BUILD_NUMBER}"
+        script {
+          docker.image('node:20').inside {
+            sh 'npm test'
+          }
+        }
       }
     }
+
+    stage('Docker Build') {
+      steps {
+        sh 'docker build -t $IMAGE_NAME:${BUILD_NUMBER} .'
+      }
+    }
+
+    stage('Tag Repo') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
+                                          usernameVariable: 'USERNAME',
+                                          passwordVariable: 'TOKEN')]) {
+          sh 'git config user.email "jenkins@example.com"'
+          sh 'git config user.name "Jenkins CI"'
+          sh 'git remote set-url origin https://$USERNAME:$TOKEN@github.com/triafus/pipeline.git'
+          sh 'git tag v${BUILD_NUMBER}'
+          sh 'git push origin v${BUILD_NUMBER}'
+        }
+      }
+    }
+
+    stage('Push Docker Image') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
+                                          usernameVariable: 'USERNAME',
+                                          passwordVariable: 'TOKEN')]) {
+          sh 'echo $TOKEN | docker login ghcr.io -u $USERNAME --password-stdin'
+          sh 'docker push $IMAGE_NAME:${BUILD_NUMBER}'
+        }
+      }
+    }
+  }
+
+  triggers {
+    githubPush()
   }
 }

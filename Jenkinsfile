@@ -1,9 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'node:20'
-    }
-  }
+  agent any
 
   environment {
     REPO_URL = 'https://github.com/triafus/pipeline.git'
@@ -19,13 +15,21 @@ pipeline {
 
     stage('Install & Build') {
       steps {
-        sh 'npm install'
+        script {
+          docker.image('node:20').inside {
+            sh 'npm install'
+          }
+        }
       }
     }
 
     stage('Tests') {
       steps {
-        sh 'npm test'
+        script {
+          docker.image('node:20').inside {
+            sh 'npm test'
+          }
+        }
       }
     }
 

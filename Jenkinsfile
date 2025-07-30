@@ -13,29 +13,15 @@ pipeline {
       }
     }
 
-    stage('Install & Build') {
-      steps {
-        script {
-          docker.image('node:20').inside {
-            sh 'npm install'
-          }
-        }
-      }
-    }
-
-    stage('Tests') {
-      steps {
-        script {
-          docker.image('node:20').inside {
-            sh 'npm test'
-          }
-        }
-      }
-    }
-
     stage('Docker Build') {
       steps {
         sh 'docker build -t $IMAGE_NAME:${BUILD_NUMBER} .'
+      }
+    }
+
+    stage('Run Tests') {
+      steps {
+        sh 'docker run --rm $IMAGE_NAME:${BUILD_NUMBER}'
       }
     }
 

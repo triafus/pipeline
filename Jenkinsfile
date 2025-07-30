@@ -9,19 +9,25 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: "${REPO_URL}", branch: 'main', credentialsId: 'hub-https-creds'
+        bat 'git clone %REPO_URL% --branch main --single-branch .'
       }
     }
 
-    stage('Install & Build & Test') {
+    stage('Install & Build') {
       steps {
-        script {
-          docker.image('node:20').inside('-v /var/run/docker.sock:/var/run/docker.sock') {
-            sh 'npm install'
-            sh 'npm test'
-            sh 'docker build -t $IMAGE_NAME:${BUILD_NUMBER} .'
-          }
-        }
+        bat 'npm install'
+      }
+    }
+
+    stage('Tests') {
+      steps {
+        bat 'npm test'
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        bat 'docker build -t %IMAGE_NAME%:%BUILD_NUMBER% .'
       }
     }
 
@@ -30,11 +36,13 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
                                           usernameVariable: 'USERNAME',
                                           passwordVariable: 'TOKEN')]) {
-          bat 'git config user.email "jenkins@example.com"'
-          bat 'git config user.name "Jenkins CI"'
-          bat 'git remote set-url origin https://%USERNAME%:%TOKEN%@github.com/triafus/pipeline.git'
-          bat 'git tag v%BUILD_NUMBER%'
-          bat 'git push origin v%BUILD_NUMBER%'
+          bat '''
+            git config user.email "jenkins@example.com"
+            git config user.name "Jenkins CI"
+            git remote set-url origin https://%USERNAME%:%TOKEN%@github.com/triafus/pipeline.git
+            git tag v%BUILD_NUMBER%
+            git push origin v%BUILD_NUMBER%
+          '''
         }
       }
     }
@@ -44,8 +52,10 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
                                           usernameVariable: 'USERNAME',
                                           passwordVariable: 'TOKEN')]) {
-          bat 'echo %TOKEN% | docker login ghcr.io -u %USERNAME% --password-stdin'
-          bat 'docker push %IMAGE_NAME%:%BUILD_NUMBER%'
+          bat '''
+            echo %TOKEN% | docker login ghcr.io -u %USERNAME% --password-stdin
+            docker push %IMAGE_NAME%:%BUILD_NUMBER%
+          '''
         }
       }
     }

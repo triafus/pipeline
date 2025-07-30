@@ -14,24 +14,14 @@ pipeline {
     }
 
     stage('Install & Build') {
-      agent {
-        docker {
-          image 'node:20-alpine'
-        }
-      }
       steps {
-        sh 'npm install'
+        sh 'docker run --rm -v $PWD:/app -w /app node:20-alpine npm install'
       }
     }
 
     stage('Tests') {
-      agent {
-        docker {
-          image 'node:20-alpine'
-        }
-      }
       steps {
-        sh 'npm test'
+        sh 'docker run --rm -v $PWD:/app -w /app node:20-alpine npm test'
       }
     }
 

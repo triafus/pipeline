@@ -14,12 +14,22 @@ pipeline {
     }
 
     stage('Install & Build') {
+      agent {
+        docker {
+          image 'node:20-alpine'
+        }
+      }
       steps {
         sh 'npm install'
       }
     }
 
     stage('Tests') {
+      agent {
+        docker {
+          image 'node:20-alpine'
+        }
+      }
       steps {
         sh 'npm test'
       }

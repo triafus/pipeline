@@ -1,5 +1,9 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'node:20'
+    }
+  }
 
   environment {
     REPO_URL = 'https://github.com/triafus/pipeline.git'
@@ -31,20 +35,19 @@ pipeline {
       }
     }
 
-stage('Tag Repo') {
-  steps {
-    withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
-                                      usernameVariable: 'USERNAME',
-                                      passwordVariable: 'TOKEN')]) {
-      sh 'git config user.email "jenkins@example.com"'
-      sh 'git config user.name "Jenkins CI"'
-      sh 'git remote set-url origin https://git:$TOKEN@github.com/triafus/pipeline.git'
-      sh 'git tag v${BUILD_NUMBER}'
-      sh 'git push origin v${BUILD_NUMBER}'
+    stage('Tag Repo') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'hub-https-creds',
+                                          usernameVariable: 'USERNAME',
+                                          passwordVariable: 'TOKEN')]) {
+          sh 'git config user.email "jenkins@example.com"'
+          sh 'git config user.name "Jenkins CI"'
+          sh 'git remote set-url origin https://$USERNAME:$TOKEN@github.com/triafus/pipeline.git'
+          sh 'git tag v${BUILD_NUMBER}'
+          sh 'git push origin v${BUILD_NUMBER}'
+        }
+      }
     }
-  }
-}
-
 
     stage('Push Docker Image') {
       steps {
